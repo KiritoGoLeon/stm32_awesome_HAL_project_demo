@@ -1,0 +1,142 @@
+/*----------------------------------------------------------------------------------------------------------------
+ * Copyright(c)
+ * ---------------------------------------------------------------------------------------------------------------
+ * File Name : service_com.c
+ * Author    : kirito
+ * Brief     : ????
+ * Date      :  2020.11.06
+ * ---------------------------------------------------------------------------------------------------------------
+ * Modifier                                    Data                                             Brief
+ * -------------------------------------------------------------------------------------------------------------*/
+
+#include "module_test.h"
+#include "gpio.h"
+#include "board.h"
+#include "driver_com.h"
+#include "adc.h"
+#include "sdio.h"
+
+#include "fatfs.h"
+#include <string.h>
+
+#include "driver_spi_flash.h"
+
+
+static void fatfs_test(void);
+
+void callback(uint8_t data)
+{
+	//drv_com1_write(data);
+}
+/**
+* @ Function Name : service_com_init
+* @ Author        : kirito
+* @ Brief         : service
+* @ Date          : 2020.11.06
+* @ Modify        : ...
+**/
+void module_test_init(void)
+{
+	MX_GPIO_Init();
+	driver_com_regist_reccallback((uint32_t)USART1,callback);
+	printf("----------- sys reset init ----------");
+	fatfs_test();
+	driver_spi_flash_init();
+}
+
+
+FATFS   fs;         
+FRESULT fr;       
+FIL     fd;        
+
+char filename[] = "test.txt";
+uint8_t write_dat[] = "Hello,FATFS!\n";
+uint16_t write_num = 0;
+static void fatfs_test(void)
+{
+	retSD = f_mount(&fs, "", 0);
+	if(retSD)
+	{
+			printf(" mount error : %d \r\n",retSD);
+			Error_Handler();
+	}
+	else
+			printf(" mount sucess!!! \r\n");
+
+	fr = f_open(&fd, filename, FA_CREATE_ALWAYS | FA_WRITE);
+	if(fr == FR_OK)
+	{
+	printf("open file \"%s\" ok! \r\n", filename);
+	}
+	else
+	{
+	printf("open file \"%s\" error : %d\r\n", filename, fr);
+	}
+
+
+	fr = f_write(&fd, write_dat, sizeof(write_dat), (void *)&write_num);
+	if(fr == FR_OK)
+	{
+	printf("write %d dat to file \"%s\" ok,dat is \"%s\".\r\n", write_num, filename, write_dat);
+	}
+	else
+	{
+	printf("write dat to file \"%s\" error,error code is:%d\r\n", filename, fr);
+	}
+
+
+	fr = f_close(&fd);
+	if(fr == FR_OK)
+	{
+	printf("close file \"%s\" ok!\r\n", filename);
+	}
+	else
+	{
+	printf("close file \"%s\" error, error code is:%d.\r\n", filename, fr);
+	}
+}
+
+
+/**
+* @ Function Name : service_com_handle
+* @ Author        : kirito
+* @ Brief         : service????
+* @ Date          : 2020.11.06
+* @ Modify        : ...
+**/
+void module_test_handle(void)
+{
+
+		//printf("hello world");
+		//char sd = HAL_GPIO_ReadPin(KEY1_GPIO_Port,KEY1_Pin);
+	//printf("KEY:%d",sd);
+	
+
+	//printf(" AD1 value = %1.3fV \r\n",ADC_Value1*3.3f/4096);
+
+	
+//	  HAL_ADC_Start(&hadc1);
+//	 HAL_ADC_PollForConversion(&hadc1, 50);
+
+//      /* Check if the continous conversion of regular channel is finished */  
+//      if(HAL_IS_BIT_SET(HAL_ADC_GetState(&hadc1), HAL_ADC_STATE_REG_EOC)) 
+//      {
+//          /*##-3- Get the converted value of regular channel  ######################*/
+//          AD_Value = HAL_ADC_GetValue(&hadc1);
+//          printf("MCU Temperature : %.1f\r\n",((AD_Value*3300/4096-760)/2.5+25));
+//      }
+}	
+
+
+
+/**
+* @ Function Name : service_com_exit
+* @ Author        : kirito
+* @ Brief         : service????
+* @ Date          : 2020.11.06
+* @ Modify        : ...
+**/
+void module_test_exit(void)
+{
+
+}
